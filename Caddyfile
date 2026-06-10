@@ -1,0 +1,11 @@
+mail.localhost {
+	reverse_proxy mailpit:8025
+}
+
+minio.localhost {
+	reverse_proxy minio:9001
+}
+
+rabbitmq.localhost {
+	reverse_proxy rabbitmq:15672
+}
