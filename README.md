@@ -12,11 +12,9 @@ A centralized repository for managing local development dependencies using Docke
 2. **Setup your environment variables:**
 ```bash
 cp .env.example .env
-
 ```
-
-
 Open the `.env` file and configure your local passwords.
+
 3. **Spin up the infrastructure:**
 ```bash
 docker compose up -d
