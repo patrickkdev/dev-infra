@@ -1,42 +1,34 @@
 services:
   postgres:
-    image: postgres:latest
-    container_name: postgres
-    restart: unless-stopped
+    image: postgres:18
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - ./data/postgres:/var/lib/postgresql/data
-    networks:
-      - dev_net
+    ports:
+      - "5432:5432"
 
   redis:
-    image: redis:latest
-    container_name: redis
-    restart: unless-stopped
+    image: redis:8
     volumes:
       - ./data/redis:/data
-    networks:
-      - dev_net
+    ports:
+      - "6379:6379"
 
-  minio:
-    image: minio/minio:latest
-    container_name: minio
-    restart: unless-stopped
-    command: server /data --console-address ":9001"
+  versitygw:
+    image: versity/versitygw:latest
+    command: posix /data
     environment:
-      MINIO_ROOT_USER: minio
-      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+      ROOT_ACCESS_KEY: ${S3_ACCESS_KEY}
+      ROOT_SECRET_KEY: ${S3_SECRET_KEY}
     volumes:
-      - ./data/minio:/data
-    networks:
-      - dev_net
-      
+      - ./data/versitygw:/data
+    ports:
+      - "9000:9000"
+
   rabbitmq:
-    image: rabbitmq:3-management
-    container_name: rabbitmq
-    restart: unless-stopped
+    image: rabbitmq:4-management
     environment:
       RABBITMQ_DEFAULT_USER: rabbitmq
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
@@ -45,23 +37,15 @@ services:
     ports:
       - "5672:5672"   # AMQP protocol port
       - "15672:15672" # Management UI web dashboard
-    networks:
-      - dev_net
-      
+
   mailpit:
-    image: axllent/mailpit:latest
-    container_name: mailpit
-    restart: unless-stopped
+    image: axllent/mailpit:1.30
     ports:
       - "1025:1025" # SMTP server port (point your app here)
       - "8025:8025" # Web UI Dashboard
-    networks:
-      - dev_net
-      
+
   caddy:
-    image: caddy:latest
-    container_name: caddy
-    restart: unless-stopped
+    image: caddy:2
     ports:
       - "80:80"
       - "443:443"
@@ -70,10 +54,3 @@ services:
       - ./Caddyfile:/etc/caddy/Caddyfile
       - ./data/caddy_data:/data
       - ./data/caddy_config:/config
-    networks:
-      - dev_net
-
-networks:
-  dev_net:
-    name: dev_net
-    driver: bridge
